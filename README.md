@@ -78,7 +78,7 @@ flowchart TD
 
 ---
 
-## 🚀 Key System Modules
+##  Key System Modules
 
 1. **Patient Management**:
    - Unique patient identifier generation (`PAT-xxxx`).
