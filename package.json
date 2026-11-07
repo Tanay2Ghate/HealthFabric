@@ -1,0 +1,22 @@
+{
+  "name": "healthchain-root",
+  "version": "1.0.0",
+  "description": "HealthChain: Hyperledger Fabric Medical Document Management & Verification",
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "start:backend": "cd backend && npm start",
+    "network:up": "powershell -ExecutionPolicy Bypass -File ./fabric-network/scripts/network.ps1 -Mode up",
+    "network:down": "powershell -ExecutionPolicy Bypass -File ./fabric-network/scripts/network.ps1 -Mode down"
+  },
+  "keywords": [
+    "hyperledger",
+    "fabric",
+    "blockchain",
+    "healthcare",
+    "medical",
+    "verification"
+  ],
+  "author": "HealthChain Team",
+  "license": "Apache-2.0"
+}

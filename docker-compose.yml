@@ -1,0 +1,51 @@
+version: '3.8'
+
+# HealthChain Full Stack Deployment
+# Hyperledger Fabric Network + Node.js Backend (SQLite) + React Frontend
+
+networks:
+  healthchain-net:
+    name: healthchain-net
+    driver: bridge
+
+services:
+  # Backend API Server
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: healthchain-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - NODE_ENV=production
+      - CORS_ORIGIN=http://localhost:3000
+      - JWT_SECRET=4f8a192bc7e4d82f1b0a539c82e6d9f041a7c3b28e5d1a9f0e2b4c6d8e0a2f4c6e8b0d2a4f6c8e0b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0a2f4c6e8b
+      - DB_PATH=/app/data/healthchain.db
+      - FABRIC_MOCK_MODE=true
+      - ENCRYPTION_MASTER_KEY=9e8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a
+    volumes:
+      - backend-data:/app/data
+      - ./backend/uploads:/app/uploads
+      - ./backend/.keys:/app/.keys
+    networks:
+      - healthchain-net
+
+  # Frontend Web UI
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: healthchain-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - healthchain-net
+
+volumes:
+  backend-data:

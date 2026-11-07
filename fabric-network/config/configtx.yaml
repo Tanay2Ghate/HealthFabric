@@ -1,0 +1,237 @@
+# ---------------------------------------------------------------------------
+# configtx.yaml
+# Hyperledger Fabric channel and genesis block configuration for HealthChain
+# Compatible with Fabric 2.5
+# ---------------------------------------------------------------------------
+
+################################################################################
+# Organizations
+################################################################################
+Organizations:
+
+  # ---------------------------------------------------------------------------
+  # Orderer Organization
+  # ---------------------------------------------------------------------------
+  - &OrdererOrg
+    Name: OrdererMSP
+    ID: OrdererMSP
+    MSPDir: ../organizations/ordererOrganizations/orderer.healthchain.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('OrdererMSP.admin')"
+    OrdererEndpoints:
+      - orderer.healthchain.com:7050
+
+  # ---------------------------------------------------------------------------
+  # Hospital A – Org1MSP
+  # ---------------------------------------------------------------------------
+  - &HospitalA
+    Name: Org1MSP
+    ID: Org1MSP
+    MSPDir: ../organizations/peerOrganizations/hospitala.healthchain.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('Org1MSP.admin', 'Org1MSP.peer', 'Org1MSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('Org1MSP.admin', 'Org1MSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('Org1MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('Org1MSP.peer')"
+    AnchorPeers:
+      - Host: peer0.hospitala.healthchain.com
+        Port: 7051
+
+  # ---------------------------------------------------------------------------
+  # Hospital B – Org2MSP
+  # ---------------------------------------------------------------------------
+  - &HospitalB
+    Name: Org2MSP
+    ID: Org2MSP
+    MSPDir: ../organizations/peerOrganizations/hospitalb.healthchain.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('Org2MSP.admin', 'Org2MSP.peer', 'Org2MSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('Org2MSP.admin', 'Org2MSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('Org2MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('Org2MSP.peer')"
+    AnchorPeers:
+      - Host: peer0.hospitalb.healthchain.com
+        Port: 8051
+
+  # ---------------------------------------------------------------------------
+  # Diagnostic Lab – Org3MSP
+  # ---------------------------------------------------------------------------
+  - &DiagnosticLab
+    Name: Org3MSP
+    ID: Org3MSP
+    MSPDir: ../organizations/peerOrganizations/diaglab.healthchain.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('Org3MSP.admin', 'Org3MSP.peer', 'Org3MSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('Org3MSP.admin', 'Org3MSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('Org3MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('Org3MSP.peer')"
+    AnchorPeers:
+      - Host: peer0.diaglab.healthchain.com
+        Port: 9051
+
+################################################################################
+# Capabilities
+# Defines the features available at the channel, orderer, and application level.
+################################################################################
+Capabilities:
+  Channel: &ChannelCapabilities
+    V2_0: true
+  Orderer: &OrdererCapabilities
+    V2_0: true
+  Application: &ApplicationCapabilities
+    V2_5: true
+
+################################################################################
+# Application
+# Defaults for application-related configuration items.
+################################################################################
+Application: &ApplicationDefaults
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    LifecycleEndorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+    Endorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+  Capabilities:
+    <<: *ApplicationCapabilities
+
+################################################################################
+# Orderer
+# Configuration for the ordering service.
+################################################################################
+Orderer: &OrdererDefaults
+  OrdererType: etcdraft
+  Addresses:
+    - orderer.healthchain.com:7050
+  EtcdRaft:
+    Consenters:
+      - Host: orderer.healthchain.com
+        Port: 7050
+        ClientTLSCert: ../organizations/ordererOrganizations/orderer.healthchain.com/orderers/orderer.orderer.healthchain.com/tls/server.crt
+        ServerTLSCert: ../organizations/ordererOrganizations/orderer.healthchain.com/orderers/orderer.orderer.healthchain.com/tls/server.crt
+    Options:
+      TickInterval: 500ms
+      ElectionTick: 10
+      HeartbeatTick: 1
+      MaxInflightBlocks: 5
+      SnapshotIntervalSize: 16 MB
+  BatchTimeout: 2s
+  BatchSize:
+    MaxMessageCount: 500
+    AbsoluteMaxBytes: 10 MB
+    PreferredMaxBytes: 2 MB
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    BlockValidation:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+  Capabilities:
+    <<: *OrdererCapabilities
+
+################################################################################
+# Channel
+# Defaults for channel configuration.
+################################################################################
+Channel: &ChannelDefaults
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+  Capabilities:
+    <<: *ChannelCapabilities
+
+################################################################################
+# Profiles
+################################################################################
+Profiles:
+
+  # ---------------------------------------------------------------------------
+  # HealthChainGenesis – system channel genesis block (orderer bootstrap)
+  # ---------------------------------------------------------------------------
+  HealthChainGenesis:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+      Organizations:
+        - *OrdererOrg
+      Capabilities:
+        <<: *OrdererCapabilities
+    Consortiums:
+      HealthChainConsortium:
+        Organizations:
+          - *HospitalA
+          - *HospitalB
+          - *DiagnosticLab
+
+  # ---------------------------------------------------------------------------
+  # HealthChainChannel – application channel for all three peer orgs
+  # ---------------------------------------------------------------------------
+  HealthChainChannel:
+    Consortium: HealthChainConsortium
+    <<: *ChannelDefaults
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *HospitalA
+        - *HospitalB
+        - *DiagnosticLab
+      Capabilities:
+        <<: *ApplicationCapabilities
