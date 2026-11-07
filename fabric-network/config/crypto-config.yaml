@@ -1,0 +1,63 @@
+# ---------------------------------------------------------------------------
+# crypto-config.yaml
+# Hyperledger Fabric Cryptogen configuration for HealthChain
+# Generates MSP material for all organizations in the network
+# ---------------------------------------------------------------------------
+
+# OrdererOrgs – Orderer organization MSP and TLS certificates
+OrdererOrgs:
+  - Name: Orderer
+    Domain: orderer.healthchain.com
+    EnableNodeOUs: true
+    Specs:
+      - Hostname: orderer
+        SANS:
+          - localhost
+          - 127.0.0.1
+
+# PeerOrgs – Peer organization MSP and TLS certificates
+PeerOrgs:
+  # -------------------------------------------------------------------------
+  # Hospital A – Org1MSP
+  # -------------------------------------------------------------------------
+  - Name: HospitalA
+    Domain: hospitala.healthchain.com
+    EnableNodeOUs: true
+    # Generates peer0.hospitala.healthchain.com and peer1.hospitala.healthchain.com
+    Template:
+      Count: 2
+      SANS:
+        - localhost
+        - 127.0.0.1
+    # Generates User1@hospitala.healthchain.com and User2@hospitala.healthchain.com
+    # (Admin is generated automatically)
+    Users:
+      Count: 2
+
+  # -------------------------------------------------------------------------
+  # Hospital B – Org2MSP
+  # -------------------------------------------------------------------------
+  - Name: HospitalB
+    Domain: hospitalb.healthchain.com
+    EnableNodeOUs: true
+    Template:
+      Count: 2
+      SANS:
+        - localhost
+        - 127.0.0.1
+    Users:
+      Count: 2
+
+  # -------------------------------------------------------------------------
+  # Diagnostic Lab – Org3MSP
+  # -------------------------------------------------------------------------
+  - Name: DiagnosticLab
+    Domain: diaglab.healthchain.com
+    EnableNodeOUs: true
+    Template:
+      Count: 2
+      SANS:
+        - localhost
+        - 127.0.0.1
+    Users:
+      Count: 2
